@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import personService from './services/persons'
-
+import './index.css'
 const Filter = ({ value, onChange }) => {
   return (
     <div>
@@ -35,11 +35,24 @@ const Persons = ({ persons, deletePerson }) => {
   )
 }
 
+const Notification = ({ message }) => {
+  if (message === null) {
+    return null
+  }
+
+  return (
+    <div className='error'>
+      {message}
+    </div>
+  )
+}
 const App = () => {
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newPhone, setNewPhone] = useState('')
   const [filter, setFilter] = useState('')
+  const [message, setMessage] = useState(null)
+
 
   useEffect(() => {
     console.log('effect')
@@ -77,11 +90,15 @@ const App = () => {
     }
     personService.create(newPerson).then(response => {
       console.log(response)
-      setPersons(persons.concat(newPerson))
+      setPersons(persons.concat(response.data))
       setNewName('')
       setNewPhone('')
+    }).then(() => {
+      setMessage(`Added ${newPerson.name}`)
+      setTimeout(() => {
+        setMessage(null)
+      }, 5000)
     })
-
   }
   const deletePerson = (id) => {
     personService
@@ -93,6 +110,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={message} />
 
       <Filter value={filter} onChange={handleFilterChange} />
 
